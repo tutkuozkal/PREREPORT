@@ -6,7 +6,7 @@ import plotly.express as px
 import altair as alt 
 from streamlit_extras.dataframe_explorer import dataframe_explorer 
 from datetime import datetime
-import datetime
+import datetime 
 import plotly.graph_objects as go
 from PIL import Image
 
@@ -14,6 +14,16 @@ from PIL import Image
 # Config the page width
 st.set_page_config(page_title="Home", page_icon="", layout="wide")
 
+#------------------------------- SOL BAR SIDE BAR ---------------------------------------------------------
+#sidebar date picker
+min_date = datetime.date(2024,1,1)
+max_date = datetime.date(2024,9,1)
+with st.sidebar:
+    st.title("Select Date Range")
+    start_date = st.date_input(label="Start Date",value=min_date)
+
+with st.sidebar:
+    finish_date = st.date_input(label="Finish Date",value=max_date)
 
 #------------------------------------ OVERALL PROGRESS -----------------------------------------------------
 
@@ -28,25 +38,20 @@ df = pd.read_excel(excel_file,
                     index_col=0,
                     skiprows=0,
                     nrows=7,
-                    dtype={'ACTIVITY': str, 'PLANNED %': int, 'ACTUAL %': int, 'VARIANCE %': int, 'BOQ': int},
+                    dtype={'ACTIVITY': str, 'PLANNED %': int, 'ACTUAL %': int, 'VARIANCE %': int},
                     )
 
-#------------------------------- SOL BAR SIDE BAR ----------------------------------------------
-#sidebar date picker
-min_date = datetime.date(2024,1,1)
-max_date = datetime.date(2024,9,1)
-with st.sidebar:
-    st.title("Select Date Range")
-    start_date = st.date_input(label="Start Date",value=min_date)
-
-with st.sidebar:
-    finish_date = st.date_input(label="Finish Date",value=max_date)
-
-#------------------------------- ACTUAL SOL ALAN ----------------------------------------------
+#------------------------------- ACTUAL SOL ALAN -----------------------------------------------------------
 excel_file1 = "actual.xlsx"
 sheet_name1 = "summary"
 
-df2 = pd.read_excel("actual.xlsx")
+df2 = pd.read_excel("actual.xlsx", 
+                    usecols="A:E",
+                    header=0,
+                    #index_col=0, 
+                    dtype={'DATE': str, 'PLANNED %': int, 'ACTUAL %': int, 'VARIANCE %': int, 'BOQ': int}
+                    )
+
 
 #filter data range
 df3 = df2[(df2["DATE"]>=str(start_date)) & (df2["DATE"]<=str(finish_date))]
@@ -57,19 +62,21 @@ st.write("")
 
 a1,a2 = st.columns(2)
 with a1:
-     st.expander("Iki Tarih Arasi Veri Tablosu")
-     filtered_df = dataframe_explorer(df3,case=False,)
-     st.dataframe(filtered_df,use_container_width=True,width=500, height=282)
-st.write("")
+     #st.expander("Iki Tarih Arasi Veri Tablosu")
+     #filtered_df = dataframe_explorer(df3,case=False,)
+     st.markdown("""
+    <div style="text-align: center;">
+    <b>WEEKLY PROGRESS</b>
+    """, unsafe_allow_html=True)
+     st.write("")
+     st.dataframe(df3,use_container_width=True,width=500, height=282)
+
 with a2:
-    st.write("")
-    st.write("")
-    st.write("")
-    st.write("")
     st.markdown("""
     <div style="text-align: center;">
     <b>OVERALL PROGRESS</b>
     """, unsafe_allow_html=True)
+    st.write("")
     st.dataframe(df,use_container_width=True,width=500, height=282)
 st.divider()
 
@@ -123,18 +130,19 @@ fig = px.bar(df_melted, x='DATE', y='Percentage', color='Category', barmode='gro
              text_auto='.2s',color_discrete_map=custom_colors)
 st.plotly_chart(fig)
 
-# ----------------------------- PLOTLY S-CURVE ----------------------------------------------
+# ----------------------------- PLOTLY S-CURVE -------------------------------------------------------------
 st.write("")
 st.markdown("""
     <div style="text-align: center;">
     <b>TOTAL PROGRESS S-CURVE</b>
     """, unsafe_allow_html=True)
-# Create the Plotly figure
+# Create the Plotly figure#04E879
 fig = go.Figure()
 
 # Add bar chart for PLANNING % and ACTUAL %t
-fig.add_trace(go.Bar(x=df3['DATE'], y=df3['PLANNING %'], name='PLANNING %', marker_color='#04E879',text=df3['PLANNING %'], textposition='inside'))
-fig.add_trace(go.Bar(x=df3['DATE'], y=df3['ACTUAL %'], name='ACTUAL %', marker_color='#0168C9',text=df3['ACTUAL %'], textposition='inside'))
+fig.add_trace(go.Bar(x=df3['DATE'], y=df3['ACTUAL %'], name='ACTUAL %', marker_color='#04E879',text=df3['ACTUAL %'], textposition='inside'))
+fig.add_trace(go.Bar(x=df3['DATE'], y=df3['PLANNING %'], name='PLANNING %', marker_color='#0168C9',text=df3['PLANNING %'], textposition='inside'))
+
 
 # Add line chart for VARIANCE % on secondary y-axis
 fig.add_trace(go.Scatter(x=df3['DATE'], y=df3['VARIANCE %'], name='VARIANCE %', 
@@ -160,7 +168,7 @@ fig.update_layout(
 st.plotly_chart(fig)
 
 st.divider()
-#------------------------------- IMALAT TABLOSU ----------------------------------------------
+#------------------------------- IMALAT TABLOSU -----------------------------------------------------------
 # Excel dosyasını yükle
 excel_file2 = "imalat.xlsx"
 sheet_name2 = "summary"
@@ -169,7 +177,6 @@ df4 = pd.read_excel(excel_file2,
                     sheet_name=sheet_name2,
                     usecols='A:D',
                     header=0,
-                    #index_col=0,
                     skiprows=0,
                     dtype={'PLASTER': int, 'GYPSUM_PLASTER': int, 'PAINT': int})
 
@@ -186,12 +193,56 @@ df5 = df4[(df4["DATE"] >= start_date) & (df4["DATE"] <= finish_date)]
 # Tarih formatını sadece yıl olarak gösterme
 df5['DATE'] = df5['DATE'].dt.strftime('%d-%m-%Y')
 
-# Filtrelenmiş tabloyu Streamlit'te göster
-st.dataframe(df5, use_container_width=True)
+# Imalat birimlerini ekleyelim
+df5['PLASTER'] = df5['PLASTER'].astype(str) + ' m²'
+df5['GYPSUM_PLASTER'] = df5['GYPSUM_PLASTER'].astype(str) + ' m²'
+df5['PAINT'] = df5['PAINT'].astype(str) + ' m²'
 
+# Yüzde hesaplama fonksiyonu
+def calculate_percentage(part, whole):
+    return round((part / whole) * 100, 2) if whole != 0 else 0
+
+# Sayısal verilerle toplam hesaplama (orijinal verileri kullanıyoruz)
+total_plaster = df4['PLASTER'].sum()
+total_gypsum = df4['GYPSUM_PLASTER'].sum()
+total_paint = df4['PAINT'].sum()
+
+# Filtrelenmiş veriler için toplamlara göre yüzdeleri hesaplama
+plaster_sum = df5['PLASTER'].replace(' m²', '', regex=True).astype(float).sum()
+gypsum_sum = df5['GYPSUM_PLASTER'].replace(' m²', '', regex=True).astype(float).sum()
+paint_sum = df5['PAINT'].replace(' m²', '', regex=True).astype(float).sum()
+
+# Doğru yüzdeleri hesaplama
+plaster_percentage = calculate_percentage(plaster_sum, total_plaster)
+gypsum_percentage = calculate_percentage(gypsum_sum, total_gypsum)
+paint_percentage = calculate_percentage(paint_sum, total_paint)
+
+s1, s2 = st.columns(2)
+with s1:
+    st.dataframe(df5, use_container_width=True, width=500, height=282)
+
+with s2:
+    # Toplam sonuçları gösterelim
+    data = {
+        'Material': ['PLASTER', 'GYPSUM_PLASTER', 'PAINT'],
+        'Total': [f"{plaster_sum} m²", f"{gypsum_sum} m²", f"{paint_sum} m²"],
+        'Percentage': [f"{plaster_percentage} %", f"{gypsum_percentage} %", f"{paint_percentage} %"]
+       
+    }
+    
+    col1,col2,col3 = st.columns(3)
+
+    with col1:
+        st.metric(label="Plaster Total", value=f"{plaster_sum} m²", delta=f"{plaster_percentage} %")
+    with col2:
+        st.metric(label="Gypsum Total", value=f"{gypsum_sum} m²", delta=f"{gypsum_percentage} %")
+    with col3:
+        st.metric(label="Paint Total", value=f"{paint_sum} m²", delta=f"{paint_percentage} %")
+    df_totals = pd.DataFrame(data)
+    st.dataframe(df_totals, use_container_width=True)    
 st.divider()
 
-#------------------------------- RESIMLER ----------------------------------------------
+#------------------------------- RESIMLER -----------------------------------------------------------------
 
 # Add to image line
 r1,r2 = st.columns(2)
@@ -199,4 +250,6 @@ with r1:
     st.image('1.jpg',use_column_width='auto')
 with r2:
     st.image('2.jpg',use_column_width='never',)
+
+
 
