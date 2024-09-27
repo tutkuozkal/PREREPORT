@@ -72,7 +72,7 @@ with a2:
     """, unsafe_allow_html=True)
     st.dataframe(df,use_container_width=True,width=500, height=282)
 st.divider()
-datas = ["ACTUAL %","PLANNING %"]
+
 
 area1 = px.bar(df3,
     x = "DATE",
@@ -80,7 +80,12 @@ area1 = px.bar(df3,
     text_auto='.2s',
     width=1600, 
     height=400,
-    barmode="group"
+    barmode="group",
+    color='ACTUAL %',
+    #color_continuous_scale=px.colors.sequential.Plasma,
+    color_continuous_scale=["#0168C9","#04E879"],
+    #color_discrete_sequence=['FF1E1E']
+    
 
 )
 
@@ -89,7 +94,9 @@ area2 = px.bar(df3,
     y = "PLANNING %",
     text_auto='.2s',
     width=1600, 
-    height=400
+    height=400,
+    color='PLANNING %',
+    color_continuous_scale=["#357928",'#0168C9']
 )
 
 st.plotly_chart(area1)
@@ -116,7 +123,7 @@ fig = px.bar(df_melted, x='DATE', y='Percentage', color='Category', barmode='gro
              text_auto='.2s',color_discrete_map=custom_colors)
 st.plotly_chart(fig)
 
-# ----------------------------- PLOTLY ----------------------------------------------
+# ----------------------------- PLOTLY S-CURVE ----------------------------------------------
 st.write("")
 st.markdown("""
     <div style="text-align: center;">
@@ -126,8 +133,8 @@ st.markdown("""
 fig = go.Figure()
 
 # Add bar chart for PLANNING % and ACTUAL %t
-fig.add_trace(go.Bar(x=df3['DATE'], y=df3['PLANNING %'], name='PLANNING %', marker_color='blue',text=df3['PLANNING %'], textposition='inside'))
-fig.add_trace(go.Bar(x=df3['DATE'], y=df3['ACTUAL %'], name='ACTUAL %', marker_color='green',text=df3['ACTUAL %'], textposition='inside'))
+fig.add_trace(go.Bar(x=df3['DATE'], y=df3['PLANNING %'], name='PLANNING %', marker_color='#04E879',text=df3['PLANNING %'], textposition='inside'))
+fig.add_trace(go.Bar(x=df3['DATE'], y=df3['ACTUAL %'], name='ACTUAL %', marker_color='#0168C9',text=df3['ACTUAL %'], textposition='inside'))
 
 # Add line chart for VARIANCE % on secondary y-axis
 fig.add_trace(go.Scatter(x=df3['DATE'], y=df3['VARIANCE %'], name='VARIANCE %', 
@@ -135,7 +142,7 @@ fig.add_trace(go.Scatter(x=df3['DATE'], y=df3['VARIANCE %'], name='VARIANCE %',
 
 # Add another smooth line for TREND % on secondary y-axis
 fig.add_trace(go.Scatter(x=df3['DATE'], y=df3['BOQ'], name='BOQ', 
-                         mode='lines+markers+text', line=dict(shape='linear', color='black', width=2, dash='dot'), yaxis='y2',text=[f"<b>{val}</b>" for val in df3['BOQ']], textposition='top center'))
+                         mode='lines+markers+text', line=dict(shape='spline', color='black', width=2, dash='dot'), yaxis='y2',text=[f"<b>{val}</b>" for val in df3['BOQ']], textposition='top center'))
 
 
 # Update layout to include a secondary y-axis
