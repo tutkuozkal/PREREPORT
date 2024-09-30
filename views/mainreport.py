@@ -15,7 +15,7 @@ from PIL import Image
 #------------------------------- SOL BAR SIDE BAR ----------------------------------------------------------
 #sidebar date picker
 min_date = datetime.date(2024,1,1)
-max_date = datetime.date(2024,9,1)
+max_date = datetime.date(2024,8,15)
 with st.sidebar:
     st.title("Select Date Range")
     start_date = st.date_input(label="Start Date",value=min_date)
@@ -251,22 +251,26 @@ plaster_percentage = calculate_percentage(plaster_sum, total_plaster)
 gypsum_percentage = calculate_percentage(gypsum_sum, total_gypsum)
 paint_percentage = calculate_percentage(paint_sum, total_paint)
 
-# İki kolon oluştur ve dataframe ve metrik sonuçlarını göster
-s1, s2 = st.columns(2)
-with s1:
-    st.dataframe(df5, use_container_width=True, width=500, height=282)
+# # İki kolon oluştur ve dataframe ve metrik sonuçlarını göster
+# s1, s2 = st.columns(2)
+# with s1:
+#     st.dataframe(df5, use_container_width=True, width=500, height=282)
+s1,s2 = st.columns(2)
 
-with s2:
+with s1:
     # Toplam sonuçları ve yüzdeleri gösterelim
     col1, col2, col3 = st.columns(3)
-
+    
     with col1:
+        st.write("")
         st.metric(label="Plaster Total", value=f"{plaster_sum} m²", delta=f"{plaster_percentage} %")
     with col2:
-        st.metric(label="Gypsum Total", value=f"{gypsum_sum} m²", delta=f"{gypsum_percentage} %")
+        st.write("")
+        st.metric(label="Gypsum Plaster Total", value=f"{gypsum_sum} m²", delta=f"{gypsum_percentage} %")
     with col3:
+        st.write("")
         st.metric(label="Paint Total", value=f"{paint_sum} m²", delta=f"{paint_percentage} %")
-
+with s2:
     # Sonuçların tablosunu göster
     data = {
         'Material': ['PLASTER', 'GYPSUM_PLASTER', 'PAINT'],
