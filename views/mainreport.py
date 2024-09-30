@@ -197,18 +197,25 @@ st.plotly_chart(fig)
 st.divider()
 #------------------------------- IMALAT TABLOSU -----------------------------------------------------------
 # Excel dosyasını yükle
+# Veri okuma fonksiyonu - cache ile optimize edildi
+@st.cache_data
+def load_data(excel_file, sheet_name):
+    # Excel dosyasını yükleyelim
+    df = pd.read_excel(excel_file,
+                       sheet_name=sheet_name,
+                       usecols='A:D',
+                       header=0,
+                       skiprows=0,
+                       dtype={'PLASTER': int, 'GYPSUM_PLASTER': int, 'PAINT': int})
+    
+    # Tarih sütununu datetime formatına çevirelim
+    df['DATE'] = pd.to_datetime(df['DATE'], errors='coerce')
+    return df
+
+# Excel dosyasını yükle ve cache'e al
 excel_file2 = "imalat.xlsx"
 sheet_name2 = "summary"
-
-df4 = pd.read_excel(excel_file2,
-                    sheet_name=sheet_name2,
-                    usecols='A:D',
-                    header=0,
-                    skiprows=0,
-                    dtype={'PLASTER': int, 'GYPSUM_PLASTER': int, 'PAINT': int})
-
-# Tarih formatını düzeltelim (Tarih sütununu datetime'a çevir)
-df4['DATE'] = pd.to_datetime(df4['DATE'], errors='coerce')
+df4 = load_data(excel_file2, sheet_name2)
 
 # start_date ve finish_date'in tarih formatına çevrilmesi
 start_date = pd.to_datetime(start_date)
@@ -244,20 +251,14 @@ plaster_percentage = calculate_percentage(plaster_sum, total_plaster)
 gypsum_percentage = calculate_percentage(gypsum_sum, total_gypsum)
 paint_percentage = calculate_percentage(paint_sum, total_paint)
 
+# İki kolon oluştur ve dataframe ve metrik sonuçlarını göster
 s1, s2 = st.columns(2)
 with s1:
     st.dataframe(df5, use_container_width=True, width=500, height=282)
 
 with s2:
-    # Toplam sonuçları gösterelim
-    data = {
-        'Material': ['PLASTER', 'GYPSUM_PLASTER', 'PAINT'],
-        'Total': [f"{plaster_sum} m²", f"{gypsum_sum} m²", f"{paint_sum} m²"],
-        'Percentage': [f"{plaster_percentage} %", f"{gypsum_percentage} %", f"{paint_percentage} %"]
-       
-    }
-    
-    col1,col2,col3 = st.columns(3)
+    # Toplam sonuçları ve yüzdeleri gösterelim
+    col1, col2, col3 = st.columns(3)
 
     with col1:
         st.metric(label="Plaster Total", value=f"{plaster_sum} m²", delta=f"{plaster_percentage} %")
@@ -265,10 +266,19 @@ with s2:
         st.metric(label="Gypsum Total", value=f"{gypsum_sum} m²", delta=f"{gypsum_percentage} %")
     with col3:
         st.metric(label="Paint Total", value=f"{paint_sum} m²", delta=f"{paint_percentage} %")
-    df_totals = pd.DataFrame(data)
-    st.dataframe(df_totals, use_container_width=True)    
-st.divider()
 
+    # Sonuçların tablosunu göster
+    data = {
+        'Material': ['PLASTER', 'GYPSUM_PLASTER', 'PAINT'],
+        'Total': [f"{plaster_sum} m²", f"{gypsum_sum} m²", f"{paint_sum} m²"],
+        'Percentage': [f"{plaster_percentage} %", f"{gypsum_percentage} %", f"{paint_percentage} %"]
+    }
+    
+    df_totals = pd.DataFrame(data)
+    st.dataframe(df_totals, use_container_width=True)
+
+# Alt çizgi ile ayırıcı
+st.divider()
 #------------------------------- RESIMLER -----------------------------------------------------------------
 
 # Add to image line
