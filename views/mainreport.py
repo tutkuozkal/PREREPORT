@@ -13,9 +13,25 @@ from PIL import Image
 
 
 #------------------------------- SOL BAR SIDE BAR ----------------------------------------------------------
+excel_file1 = "actual.xlsx"
+sheet_name1 = "summary"
+
+df2 = pd.read_excel("actual.xlsx", 
+                    usecols="A:G",
+                    header=0,
+                    #index_col=0, 
+                    dtype={'DATE': str, 'PLANNED %': int, 'ACTUAL %': int, 'VARIANCE %': int, 'BASE': int,'OVERALL_ACTUAL': int,'OVERALL2': int}
+                    )
+
+# Tarih kolonunundaki en kucuk ve en buyuk tarihi buluyoruz.
+df2['DATE'] = pd.to_datetime(df2['DATE'], errors='coerce')
+max_date = df2['DATE'].max()
+
+min_date = df2['DATE'].min()
+min_date = min_date.date()
+
+
 #sidebar date picker
-min_date = datetime.date(2024,1,1)
-max_date = datetime.date(2024,12,1)
 with st.sidebar:
     st.title("Select Date Range")
     start_date = st.date_input(label="Start Date",value=min_date)
