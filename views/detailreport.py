@@ -19,7 +19,7 @@ dates = df_excel['DATE'].dt.strftime('%Y-%m-%d').tolist()  # Tarih kolonunu list
 
 
 # Sidebar: Excel'den alınan kolon isimlerini checkbox olarak göster
-st.sidebar.markdown("### Production")
+st.sidebar.markdown("### Production 1")
 # Tarih ve DATE kolonunu hariç tutarak sadece imalat kolonlarını seçelim
 available_columns = df_excel.columns.difference(['DATE'])
 selected_columns = st.sidebar.multiselect("Choose Your Productions", available_columns)
@@ -64,7 +64,7 @@ if selected_columns:
 
     # Layout ayarları (aylar arasında ayırıcılar ve özel tarih formatı)
     fig.update_layout(
-        title='Production/s ve Cumulative Percentage',
+        title='Production/s & Cumulative Percentage',
         xaxis_title='Date',
         yaxis_title='Production',
         xaxis=dict(
@@ -87,7 +87,7 @@ if selected_columns:
     st.plotly_chart(fig, use_container_width=True)
 
 else:
-    st.write("Please select one or more productions from the sidebar.")
+    st.write("Please select one or more productions from the sidebar (Production 1).")
 
 #--------------------------------------------------------------------------------------------------------
 
@@ -124,7 +124,7 @@ end_date = st.sidebar.date_input(
 )
 
 # Sidebar: Excel'den alınan kolon isimlerini selectbox olarak göster
-st.sidebar.markdown("### Production")
+st.sidebar.markdown("### Production 2")
 # Tarih ve DATE kolonunu hariç tutarak sadece imalat kolonlarını seçelim
 available_columns = df_excel.columns.difference(['DATE'])
 selected_column = st.sidebar.selectbox("Choose Your Production", available_columns)
@@ -141,6 +141,7 @@ if selected_column:
     selected_values = df_filtered[selected_column].tolist()
     dates = df_filtered['DATE'].dt.strftime('%Y-%m-%d').tolist()  # Filtrelenmiş tarihleri listeye çeviriyoruz
     
+
     # DataFrame oluşturma
     df_selected = pd.DataFrame({selected_column: selected_values}, index=dates).T  # Transpoz alıyoruz, böylece malzeme satır başlıkları, tarihler kolonlar olacak
 
@@ -175,14 +176,14 @@ if selected_column:
         y=cumulative_percentage,
         name='Cumulative Percentage',
         mode='lines+markers+text',
-        line=dict(color='rgb(255,99,71)', width=2),
+        line=dict(color='rgb(255,101,0)', width=2),
         text=[f"{round(val, 2)}%" for val in cumulative_percentage],
         textposition='top center'
     ))
 
     # Layout ayarları (aylar arasında ayırıcılar ve özel tarih formatı)
     fig.update_layout(
-        title=f'{selected_column} ve Cumulative Percentage ({start_date} - {end_date})',
+        title=f'{selected_column} & Cumulative Percentage ({start_date} - {end_date})',
         xaxis_title='Date',
         yaxis_title=selected_column,
         xaxis=dict(
