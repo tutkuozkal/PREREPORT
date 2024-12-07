@@ -8,7 +8,7 @@ import streamlit as st
 #---------------------- HERO SECTION -------------------#
 col1, col2 = st.columns(2, gap= "small", vertical_alignment="center")
 with col1:
-    st.image('./assets/1.png', width=100,use_column_width="always" )
+    st.image('./assets/1.png', width=100,use_container_width= True )
 with col2:
     st.title('Tutku OZKAL', anchor= False)
     st.write(
