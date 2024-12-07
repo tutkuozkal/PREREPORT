@@ -14,7 +14,9 @@ with col2:
     st.write(
         'Data Scientist, Planning and Reporting Expert'
     )
-   
+   st.write(
+        'Mail: tutku.ozkal@gmail.com'
+     )
 
 #---------------------- EXPERIENCE & QUALIFICATIONS -------------------#
 st.write("")
