@@ -14,7 +14,7 @@ with col2:
     st.write(
         'Data Scientist, Planning and Reporting Expert'
     )
-   st.write(
+    st.write(
         'Mail: tutku.ozkal@gmail.com'
      )
 
