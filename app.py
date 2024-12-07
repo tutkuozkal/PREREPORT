@@ -35,7 +35,7 @@ project_2_page = st.Page(
 #------------------------------- NAVIGATION SETUP ----------------------------------------------------------
 pg= st.navigation({
     #"Info": [about_page],
-    "Projects": [project_1_page,project_2_page]
+    "Projects": [about_page,project_1_page,project_2_page]
 })
 
 #------------------------------- RUN NAVIGATION ------------------------------------------------------------
